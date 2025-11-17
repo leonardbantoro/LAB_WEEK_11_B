@@ -1,0 +1,36 @@
+MAP - LAB
+Leonard Augusto Bantoro / 00000091585
+Assignment Week 11
+
+Answer these questions based on Part 3 of the tutorial: 
+1. When a user takes a picture, that picture is stored in a path based on the given?
+
+private fun insertToStore(fileInfo: FileInfo, contentUri: Uri,
+                              contentValues: ContentValues
+    ) {
+        executor.execute {
+            val insertedUri = contentResolver.insert(contentUri,
+                contentValues)
+            insertedUri?.let {
+                val inputStream =
+                    contentResolver.openInputStream(fileInfo.uri)
+                val outputStream =
+                    contentResolver.openOutputStream(insertedUri)
+                IOUtils.copy(inputStream, outputStream)
+            }
+        }
+    }
+
+Terdapat function insertToStore yang berperan untuk melakukan copy file dari URI FileProvider ke MediaStore. Oleh sebab itu, gambar akan tersimpan di storage sesuai dengan path yang telah ditentukan sebelumnya.
+
+2.  In your FileInfo.kt, there are 5 attributes. On the first attribute, what does the URI
+refer to? And on the fourth attribute, what does relativePath refer to?
+
+Atribut pertama yaitu URI adalah sebuah Atribut yang bersifat sementara karena nantinya akan digunakan sebagai tempat penyimpanan setelah pengguna menggunakan kamera. Oleh sebab itu, URI bisa dibilang sebagai lokasi awal penyimpanan file sebelum nantinya dipindah ke MediaStore.
+
+Sedangkan atriubt ke-empat yaitu relativePath merupakan folder tujuan di MediaStore yang akan menyimpan file secara permanen.
+
+3. [Bonus] Explain the chronological order from when a user takes a picture until
+the file is stored in the MediaStore
+
+Jadi alur secara kronologis sejak user mengambil gambar hingga file tersimpan dimulai ketika user menekan tombol foto. Pada tahap ini aplikasi mengatur isCapturingVideo = false dan melakukan pengecekan serta permintaan izin storage. Jika izin diberikan, maka fungsi openImageCapture() dipanggil. Selanjutnya aplikasi membuat sebuah URI melalui generatePhotoUri(), yang sekaligus membuat file sementara di internal directory. File sementara ini menjadi lokasi awal tempat kamera menyimpan hasil foto. Kamera kemudian dijalankan menggunakan URI tersebut. Setelah foto berhasil diambil, callback TakePicture() dipicu dan aplikasi memanggil insertImageToStore(). Pada tahap ini file foto disalin dari URI sementara ke MediaStore menggunakan fungsi insertToStore(). Setelah proses penyalinan selesai, foto tersimpan secara permanen di folder Pictures dan dapat diakses oleh aplikasi seperti Gallery.
